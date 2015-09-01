@@ -85,6 +85,8 @@ grails.hibernate.pass.readonly = false
 // configure passing read-only to OSIV session by default, requires "singleSession = false" OSIV mode
 grails.hibernate.osiv.readonly = false
 
+def logDirectory = '.'
+
 environments {
     development {
         grails.logging.jul.usebridge = true
@@ -93,8 +95,10 @@ environments {
          * If set to null, "node" mode is used by default.
          */
         elasticSearch.client.mode = 'local'
+        logDirectory = "logs"
     }
     test {
+        logDirectory = "logs"
         elasticSearch {
             client.mode = 'local'
             index.store.type = 'memory' // store local node in memory and not on disk
@@ -107,13 +111,18 @@ environments {
     }
 }
 
+
 // log4j configuration
 log4j.main = {
-    // Example of changing the log pattern for the default console appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
+    appenders {
+        console name:'stdout'
+        rollingFile name: "personAppender", file: "${logDirectory}/person.log", maxFileSize:"1MB", maxBackupIndex: 10
+    }
+
+    root { error 'stdout', 'personAppender' }
+
+    debug 'grails.app' // set logging for all grails artifacts
+
 
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers
            'org.codehaus.groovy.grails.web.pages',          // GSP
